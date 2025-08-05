@@ -7,7 +7,7 @@
 #include "tfb/Median.hpp"
 
 
-namespace control {
+namespace smcontrol {
 
 /// Джойстик с одной осью
 struct AnalogAxis {

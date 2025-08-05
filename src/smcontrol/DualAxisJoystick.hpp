@@ -3,7 +3,7 @@
 #include "AnalogAxis.hpp"
 
 
-namespace control {
+namespace smcontrol {
 
 /// Джойстик с двумя осями
 struct DualAxisJoystick {
