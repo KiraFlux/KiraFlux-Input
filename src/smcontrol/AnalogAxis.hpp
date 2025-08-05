@@ -18,13 +18,22 @@ private:
     static constexpr auto max_analog_value = 4095;
     /// Аналоговый центр по умолчанию (Среднее значение)
     static constexpr auto default_analog_center = max_analog_value / 2;
+    /// Ширина медианного фильтра
+    static constexpr auto median_filter_samples = 5;
+
+public:
+
+    /// Ось инвертирована
+    bool inverted{false};
+
+private:
 
     /// Пин подключения джойстика
     const uint8_t pin;
     /// Внешний фильтр значений
     tfb::Exponential<float> outer_filter;
     /// Внутренний фильтр аналоговых значений
-    tfb::MedianFilter<int, 5> inner_filter{default_analog_center};
+    tfb::MedianFilter<int, median_filter_samples> inner_filter{default_analog_center};
     /// Граница от центра на уменьшение
     float generic_edge{default_analog_center};
     /// Граница от центра на возрастание
@@ -49,6 +58,13 @@ public:
 
     /// Считать нормализованное значение
     float read() {
+        const auto result = pureRead();
+        return inverted ? -result : result;
+    }
+
+private:
+
+    float pureRead() {
         const auto raw = inner_filter.calc(readRaw());
         const auto value = outer_filter.calc(float(raw) - generic_edge);
 
@@ -58,5 +74,6 @@ public:
             return value / positive_edge;
         }
     }
+
 };
 }

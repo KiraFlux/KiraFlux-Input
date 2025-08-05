@@ -1,30 +1,38 @@
 #pragma once
 
+#include <cstdint>
+
+
 namespace smcontrol {
 
 /// Прослушивает изменения джойстика
 struct JoystickListener {
 
+private:
+
+    /// Порог срабатывания по умолчанию
+    static constexpr auto default_threshold = 0.3;
+
 public:
 
     /// Событие джойстика (Срабатывают однократно)
-    enum class Direction {
+    enum class Direction : uint8_t {
         /// Джойстик переместился исходную позицию
-        Home,
+        Home = 0x00,
         /// Джойстик переместился вверх
-        Up,
-        /// Джойстик переместился вниз
-        Down,
-        /// Джойстик переместился влево
-        Left,
-        /// Джойстик переместился вправо
-        Right,
+        Up = 0x10,
+        /// Джойстик удерживается вверх
+        Down = 0x20,
+        /// Джойстик удерживается в вниз
+        Left = 0x30,
+        /// Джойстик удерживается в влево
+        Right = 0x40,
     };
 
     /// Обработчик событий джойстика
     std::function<void(Direction)> handler{nullptr};
     /// Порог срабатывания
-    const float threshold{0.2};
+    const float threshold{default_threshold};
 
 private:
 
@@ -44,7 +52,7 @@ public:
             return;
         }
 
-        const auto current_direction = getCurrentMove();
+        const auto current_direction = getCurrentDirection();
 
         if (last_direction != current_direction) {
             handler(current_direction);
@@ -54,7 +62,7 @@ public:
 
 private:
 
-    Direction getCurrentMove() {
+    Direction getCurrentDirection() {
         const auto x = joystick.axis_x.read();
         const auto y = joystick.axis_y.read();
         const auto abs_x = std::abs(x);
