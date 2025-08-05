@@ -6,19 +6,14 @@
 namespace smcontrol {
 
 /// Джойстик с двумя осями
-struct DualAxisJoystick {
-
-private:
+struct Joystick {
 
     /// Ось джойстика X
     AnalogAxis axis_x;
-
     /// Ось джойстика Y
     AnalogAxis axis_y;
 
-public:
-
-    explicit DualAxisJoystick(uint8_t pin_x, uint8_t pin_y, float &&filter_k) :
+    explicit Joystick(uint8_t pin_x, uint8_t pin_y, float &&filter_k) :
         axis_x{pin_x, filter_k},
         axis_y{pin_y, filter_k} {}
 
