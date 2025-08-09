@@ -11,7 +11,7 @@ struct JoystickListener {
 private:
 
     /// Порог срабатывания по умолчанию
-    static constexpr auto default_threshold = 0.3;
+    static constexpr auto default_threshold = 0.6;
 
 public:
 
@@ -47,7 +47,7 @@ public:
         joystick{joy} {}
 
     /// Пул обновлений событий джойстика
-    void pull() {
+    void poll() {
         if (not handler) {
             return;
         }
