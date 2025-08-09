@@ -7,10 +7,10 @@
 #include "tfb/Median.hpp"
 
 
-namespace smcontrol {
+namespace kf {
 
 /// Джойстик с одной осью
-struct AnalogAxis {
+struct AnalogAxis final {
 
 private:
 
@@ -41,32 +41,32 @@ private:
 
 public:
 
-    explicit AnalogAxis(uint8_t pin, const float &k) :
+    explicit AnalogAxis(uint8_t pin, const float &k) noexcept:
         pin{pin}, outer_filter{k} {}
 
     /// Инициализировать джойстик
-    inline void init() const { pinMode(pin, INPUT); }
+    inline void init() const noexcept { pinMode(pin, INPUT); }
 
     /// Обновить значение аналогового цента
-    void updateCenter(int new_center) {
+    void updateCenter(int new_center) noexcept {
         generic_edge = float(new_center);
         positive_edge = max_analog_value - generic_edge;
     }
 
     /// Считать (сырое) аналоговое значение
-    inline int readRaw() const { return analogRead(pin); }
+    inline int readRaw() const noexcept { return analogRead(pin); }
 
-    /// Считать нормализованное значение
-    float read() {
+    /// Считать нормализованное значение [0.0..1.0]
+    float read() noexcept {
         const auto result = pureRead();
         return inverted ? -result : result;
     }
 
 private:
 
-    float pureRead() {
-        const auto raw = inner_filter.calc(readRaw());
-        const auto value = outer_filter.calc(float(raw) - generic_edge);
+    float pureRead() noexcept {
+        const auto raw = float(inner_filter.calc(readRaw()));
+        const auto value = outer_filter.calc(raw - generic_edge);
 
         if (value < 0) {
             return value / generic_edge;

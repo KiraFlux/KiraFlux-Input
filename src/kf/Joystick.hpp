@@ -3,53 +3,53 @@
 #include "AnalogAxis.hpp"
 
 
-namespace smcontrol {
+namespace kf {
 
 /// Джойстик с двумя осями
-struct Joystick {
+struct Joystick final {
 
     /// Ось джойстика X
     AnalogAxis axis_x;
     /// Ось джойстика Y
     AnalogAxis axis_y;
 
-    explicit Joystick(uint8_t pin_x, uint8_t pin_y, float &&filter_k) :
+    explicit Joystick(uint8_t pin_x, uint8_t pin_y, float &&filter_k) noexcept:
         axis_x{pin_x, filter_k},
         axis_y{pin_y, filter_k} {}
 
     /// Инициализировать джойстик
-    void init() const {
+    inline void init() const noexcept {
         axis_x.init();
         axis_y.init();
     }
 
     /// выполнить калибровку центра джойстика
-    void calibrate(int iterations) {
+    void calibrate(int samples) noexcept {
         constexpr auto period = 10;
 
         int sum_x = 0;
         int sum_y = 0;
 
-        for (int i = 0; i < iterations; i++) {
+        for (int i = 0; i < samples; i++) {
             sum_x += axis_x.readRaw();
             sum_y += axis_y.readRaw();
             delay(period);
         }
 
-        axis_x.updateCenter(sum_x / iterations);
-        axis_y.updateCenter(sum_y / iterations);
+        axis_x.updateCenter(sum_x / samples);
+        axis_y.updateCenter(sum_y / samples);
     }
 
     /// Возвращаемое значение джойстика
-    struct Value {
-        /// Нормализованное значение по двум осям
+    struct Data {
+        /// Нормализованное значение по двум осям [0.0..1.0]
         float x, y;
-        /// Вычисленная магнитуда по двум осям
+        /// Магнитуда по двум осям [0.0..1.0]
         float magnitude;
     };
 
     /// Считать значение джойстика
-    Value read() {
+    Data read() noexcept {
         const auto x = axis_x.read();
         const auto y = axis_y.read();
         const auto h = std::hypot(x, y);

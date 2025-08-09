@@ -3,7 +3,7 @@
 #include <cstdint>
 
 
-namespace smcontrol {
+namespace kf {
 
 /// Прослушивает изменения джойстика
 struct JoystickListener {
