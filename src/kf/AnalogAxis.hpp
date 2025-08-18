@@ -18,8 +18,6 @@ private:
     static constexpr auto max_analog_value = 4095;
     /// Аналоговый центр по умолчанию (Среднее значение)
     static constexpr auto default_analog_center = max_analog_value / 2;
-    /// Ширина медианного фильтра
-    static constexpr auto median_filter_samples = 5;
 
 public:
 
@@ -30,26 +28,27 @@ private:
 
     /// Пин подключения джойстика
     const uint8_t pin;
-    /// Внешний фильтр значений
-    tfb::Exponential<float> outer_filter;
-    /// Внутренний фильтр аналоговых значений
-    tfb::MedianFilter<int, median_filter_samples> inner_filter{default_analog_center};
+    /// фильтр значений
+    tfb::Exponential<float> filter;
     /// Граница от центра на уменьшение
-    float generic_edge{default_analog_center};
+    int generic_edge{default_analog_center};
     /// Граница от центра на возрастание
-    float positive_edge{default_analog_center};
+    int positive_edge{default_analog_center};
 
 public:
 
-    explicit AnalogAxis(uint8_t pin, const float &k) noexcept:
-        pin{pin}, outer_filter{k} {}
+    /// Сырое Значение меньше которого ось считается 0
+    int dead_zone{0};
+
+    explicit AnalogAxis(gpio_num_t pin, float k) noexcept:
+        pin{static_cast<uint8_t>(pin)}, filter{k} {}
 
     /// Инициализировать джойстик
     inline void init() const noexcept { pinMode(pin, INPUT); }
 
     /// Обновить значение аналогового цента
     void updateCenter(int new_center) noexcept {
-        generic_edge = float(new_center);
+        generic_edge = new_center;
         positive_edge = max_analog_value - generic_edge;
     }
 
@@ -65,13 +64,16 @@ public:
 private:
 
     float pureRead() noexcept {
-        const auto raw = float(inner_filter.calc(readRaw()));
-        const auto value = outer_filter.calc(raw - generic_edge);
+        const auto analog = readRaw() - generic_edge;
 
-        if (value < 0) {
-            return value / generic_edge;
+        if (std::abs(analog) < dead_zone) { return 0.0f; }
+
+        const auto value = filter.calc(static_cast<float>(analog));
+
+        if (value < 0.0f) {
+            return value / static_cast<float>(generic_edge);
         } else {
-            return value / positive_edge;
+            return value / static_cast<float>(positive_edge);
         }
     }
 
