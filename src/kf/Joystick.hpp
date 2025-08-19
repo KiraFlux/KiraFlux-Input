@@ -23,28 +23,27 @@ struct Joystick final {
         axis_y.init();
     }
 
-    /// выполнить калибровку центра джойстика
+    /// Калиброка джойстика
     void calibrate(int samples) noexcept {
         constexpr auto period_ms = 1;
 
-        int center_x = 0;
-        int center_y = 0;
-        int max_dev_x = 0;
-        int max_dev_y = 0;
+        long sum_x = 0;
+        long sum_y = 0;
 
-        // Первый проход: вычисление центра
+        // Первый проход: вычисление точного центра
         for (int i = 0; i < samples; i++) {
-            const int x = axis_x.readRaw();
-            const int y = axis_y.readRaw();
-            center_x += x;
-            center_y += y;
+            sum_x += axis_x.readRaw();
+            sum_y += axis_y.readRaw();
             delay(period_ms);
         }
 
-        center_x /= samples;
-        center_y /= samples;
+        const int center_x = static_cast<int>(sum_x / samples);
+        const int center_y = static_cast<int>(sum_y / samples);
 
         // Второй проход: вычисление максимального отклонения
+        int max_dev_x = 0;
+        int max_dev_y = 0;
+
         for (int i = 0; i < samples; i++) {
             const int x = axis_x.readRaw();
             const int y = axis_y.readRaw();
@@ -55,10 +54,13 @@ struct Joystick final {
             delay(period_ms);
         }
 
-        axis_x.updateCenter(center_x / samples);
-        axis_y.updateCenter(center_y / samples);
-        axis_x.dead_zone = max_dev_x * 3 / 2;
-        axis_y.dead_zone = max_dev_y * 3 / 2;
+        // Установка центра и dead zone
+        axis_x.updateCenter(center_x);
+        axis_y.updateCenter(center_y);
+
+        // Dead zone = 150% от максимального отклонения + небольшой запас
+        axis_x.dead_zone = max_dev_x * 3 / 2 + 10;
+        axis_y.dead_zone = max_dev_y * 3 / 2 + 10;
     }
 
     /// Возвращаемое значение джойстика
