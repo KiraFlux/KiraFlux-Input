@@ -9,7 +9,7 @@
     "input"
   ],
   "dependencies": {
-    "Tiny-Filter-Box": "https://github.com/JamahaW/Tiny-Filter-Box.git"
+    "Tiny-Filter-Box": "https://github.com/KiraFlux/Tiny-Filter-Box.git"
   },
   "platforms": [
     "espressif32"
