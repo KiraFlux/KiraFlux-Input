@@ -1,6 +1,6 @@
 {
   "name": "KiraFlux-Input",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "Lightweight ESP32 joystick library with filtering and calibration",
   "keywords": [
     "joystick",
@@ -9,7 +9,7 @@
     "input"
   ],
   "dependencies": {
-    "Tiny-Filter-Box": "https://github.com/KiraFlux/Tiny-Filter-Box.git"
+    "KiraFlux-ToolBox": "https://github.com/KiraFlux/KiraFlux-ToolBox.git"
   },
   "platforms": [
     "espressif32"

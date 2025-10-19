@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <kf/aliases.hpp>
 
 
 namespace kf {
@@ -16,21 +17,26 @@ private:
 public:
 
     /// Событие джойстика (Срабатывают однократно)
-    enum class Direction : uint8_t {
+    enum class Direction : u8 {
         /// Джойстик переместился исходную позицию
         Home = 0x00,
+
         /// Джойстик переместился вверх
         Up = 0x10,
+
         /// Джойстик удерживается вверх
         Down = 0x20,
+
         /// Джойстик удерживается в вниз
         Left = 0x30,
+
         /// Джойстик удерживается в влево
         Right = 0x40,
     };
 
     /// Обработчик событий джойстика
     std::function<void(Direction)> handler{nullptr};
+
     /// Порог срабатывания
     const float threshold{default_threshold};
 
@@ -38,6 +44,7 @@ private:
 
     /// Предыдущее направление
     Direction last_direction{Direction::Home};
+
     /// Прослушиваемый джойстик
     Joystick &joystick;
 
@@ -48,13 +55,11 @@ public:
 
     /// Пул обновлений событий джойстика
     void poll() {
-        if (not handler) {
-            return;
-        }
+        if (not handler) { return; }
 
         const auto current_direction = getCurrentDirection();
 
-        if (last_direction != current_direction) {
+        if (current_direction != last_direction) {
             handler(current_direction);
             last_direction = current_direction;
         }

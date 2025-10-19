@@ -13,7 +13,7 @@ struct Joystick final {
     /// Ось джойстика Y
     AnalogAxis axis_y;
 
-    explicit Joystick(gpio_num_t pin_x, gpio_num_t pin_y, float filter_k) noexcept:
+    explicit Joystick(gpio_num_t pin_x, gpio_num_t pin_y, f32 filter_k) noexcept:
         axis_x{pin_x, filter_k},
         axis_y{pin_y, filter_k} {}
 
@@ -23,12 +23,12 @@ struct Joystick final {
         axis_y.init();
     }
 
-    /// Калиброка джойстика
+    /// Выполнить калибровку джойстика
     void calibrate(int samples) noexcept {
         constexpr auto period_ms = 1;
 
-        long sum_x = 0;
-        long sum_y = 0;
+        i64 sum_x = 0;
+        i64 sum_y = 0;
 
         // Первый проход: вычисление точного центра
         for (int i = 0; i < samples; i++) {
@@ -37,8 +37,8 @@ struct Joystick final {
             delay(period_ms);
         }
 
-        const int center_x = static_cast<int>(sum_x / samples);
-        const int center_y = static_cast<int>(sum_y / samples);
+        const auto center_x = static_cast<int>(sum_x / samples);
+        const auto center_y = static_cast<int>(sum_y / samples);
 
         // Второй проход: вычисление максимального отклонения
         int max_dev_x = 0;
@@ -66,9 +66,9 @@ struct Joystick final {
     /// Возвращаемое значение джойстика
     struct Data {
         /// Нормализованное значение по двум осям [0.0..1.0]
-        float x, y;
+        f32 x, y;
         /// Магнитуда по двум осям [0.0..1.0]
-        float magnitude;
+        f32 magnitude;
     };
 
     /// Считать значение джойстика

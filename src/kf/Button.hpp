@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <functional>
+#include <kf/aliases.hpp>
 
 
 namespace kf {
@@ -9,7 +10,7 @@ namespace kf {
 /// Тактовая кнопка
 struct Button {
 
-    enum class Mode : uint8_t {
+    enum class Mode : u8 {
         /// Режим подтягивания вверх
         PullUp,
         /// Режим подтягивания вниз
@@ -24,7 +25,7 @@ private:
 public:
 
     /// Номер пина кнопки
-    const uint8_t pin;
+    const u8 pin;
     /// Режим работы кнопки
     const Mode mode;
     /// Обработчик нажатия кнопки
@@ -35,15 +36,15 @@ private:
     /// Предыдущее состояние кнопки
     bool last_state{false};
     /// Время последнего нажатия
-    uint32_t last_press_ms{0};
+    u32 last_press_ms{0};
 
 public:
 
     explicit Button(gpio_num_t pin, Mode mode = Mode::PullDown) :
-        pin{static_cast<uint8_t>(pin)}, mode{mode} {}
+        pin{static_cast<u8>(pin)}, mode{mode} {}
 
     /// Инициализация кнопки
-    inline void init(bool external_pull) const noexcept {
+    inline void init(bool external_pull /* todo replace with enum */) const noexcept {
         pinMode(pin, matchMode(external_pull));
     }
 
@@ -65,7 +66,7 @@ public:
     }
 
     /// Считать значение кнопки
-    bool read() const noexcept {
+    [[nodiscard]] bool read() const noexcept {
         if (mode == Mode::PullUp) {
             return not digitalRead(pin);
         }
@@ -74,7 +75,7 @@ public:
 
 private:
 
-    inline int matchMode(bool external) const noexcept {
+    [[nodiscard]] inline u8 matchMode(bool external) const noexcept {
         if (external) {
             return INPUT;
         }
