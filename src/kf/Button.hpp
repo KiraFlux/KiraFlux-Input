@@ -17,10 +17,15 @@ struct Button {
         PullDown
     };
 
+    enum class PullType : u8 {
+        External,
+        Internal,
+    };
+
 private:
 
     /// Длительность дребезга в миллисекундах
-    static constexpr auto debounce_ms = 50;
+    static constexpr auto debounce_ms = 50; // todo Задать параметром
 
 public:
 
@@ -44,8 +49,8 @@ public:
         pin{static_cast<u8>(pin)}, mode{mode} {}
 
     /// Инициализация кнопки
-    inline void init(bool external_pull /* todo replace with enum */) const noexcept {
-        pinMode(pin, matchMode(external_pull));
+    inline void init(PullType pull_type) const noexcept {
+        pinMode(pin, matchMode(pull_type));
     }
 
     /// Обновление состояния кнопки
@@ -75,10 +80,12 @@ public:
 
 private:
 
-    [[nodiscard]] inline u8 matchMode(bool external) const noexcept {
-        if (external) {
+    [[nodiscard]] inline u8 matchMode(PullType pull_type) const noexcept {
+        if (PullType::External == pull_type) {
             return INPUT;
         }
+        
+        // else - Internal
 
         if (mode == Mode::PullUp) {
             return INPUT_PULLUP;
